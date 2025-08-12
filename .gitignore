@@ -1,0 +1,12 @@
+cat > .gitignore <<'EOF'
+.idea/
+vendor/
+bin/
+*.log
+.env
+config/local.yaml
+EOF
+
+git add .gitignore
+git commit -m "gitignore"
+git push
