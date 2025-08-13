@@ -1,5 +1,6 @@
 # --- build stage ---
-FROM golang:1.22 AS build
+FROM golang:1.24.5 AS build
+ENV GOTOOLCHAIN=local
 WORKDIR /app
 
 # Сначала зависимости
