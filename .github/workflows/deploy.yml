@@ -29,10 +29,9 @@ jobs:
       - name: Push image
         run: docker push "$IMAGE"
 
-deploy:
-  needs: build
-  runs-on: ubuntu-latest
-  steps:
-    - name: SSH deploy (fake)
-      run: |
-        echo "Simulated deploy..."
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy (fake)
+        run: echo "Simulated deploy..."
