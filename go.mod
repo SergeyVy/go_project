@@ -6,8 +6,10 @@ require (
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/render v1.0.3
 	github.com/go-playground/validator/v10 v10.27.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.7.5
+	golang.org/x/crypto v0.41.0
 	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a
 )
 
@@ -24,7 +26,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect

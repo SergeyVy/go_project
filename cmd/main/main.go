@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	_ "golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/slog"
 	"net/http"
 	"os"
+	"url-shorter/internal/http-server/handlers"
 	del "url-shorter/internal/http-server/handlers/delete"
 	"url-shorter/internal/http-server/handlers/url/save"
 
+	_ "golang.org/x/crypto/bcrypt"
 	"url-shorter/internal/config"
 	"url-shorter/internal/http-server/handlers/redirect"
+	authmw "url-shorter/internal/http-server/middleware"
 	"url-shorter/internal/storage"
 )
 
@@ -23,6 +27,7 @@ const (
 )
 
 func main() {
+
 	cfg := config.MustLoad()
 	fmt.Println(cfg)
 
@@ -40,43 +45,37 @@ func main() {
 	}
 
 	router := chi.NewRouter()
-
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
+	// 1) Публичный логин: отдаём access/refresh
+	router.Post("/auth/login", handlers.Login(store.DB))
+
+	// 2) Приватные URL‑эндпоинты: доступ только с JWT
 	router.Route("/url", func(r chi.Router) {
-		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
-			cfg.HTTPServer.User: cfg.HTTPServer.Password,
-		}))
+		r.Use(authmw.Auth) // наш JWT‑middleware
 
 		r.Post("/", save.New(log, store))
 		r.Delete("/{alias}", del.New(log, store))
 		r.Get("/{alias}", redirect.New(log, store))
+
 		r.Get("/{alias}/info", func(w http.ResponseWriter, r *http.Request) {
 			alias := chi.URLParam(r, "alias")
-
-			// Делаем запрос к базе (store) — нужно, чтобы store умел доставать по alias
 			data, err := store.GetByAlias(alias)
 			if err != nil {
 				http.Error(w, "not found", http.StatusNotFound)
 				return
 			}
-
-			// Возвращаем JSON с данными
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(data)
 		})
-
 	})
 
-	//health-check
-	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	})
+	// health
+	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) })
 
-	// (4) Явные обработчики 404/405 — чтобы дебажить матчинги маршрутов
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "router not matched", http.StatusNotFound)
 	})
