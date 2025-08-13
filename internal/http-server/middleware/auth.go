@@ -49,3 +49,12 @@ func Auth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func UserID(r *http.Request) (int64, bool) {
+	v := r.Context().Value(userIDKey)
+	if v == nil {
+		return 0, false
+	}
+	id, ok := v.(int64)
+	return id, ok
+}
