@@ -1,0 +1,8 @@
+env: "prod"
+storage: ""  # будем читать из env DATABASE_URL
+http_server:
+  address: ":8080"
+  timeout: 4s
+  idle_timeout: 60s
+user: "admin"
+password: "1234"
